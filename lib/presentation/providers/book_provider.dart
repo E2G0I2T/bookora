@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/book_model.dart';
 import '../../data/repositories/book_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'book_provider.g.dart';
 
@@ -56,8 +57,11 @@ Future<List<BookModel>> searchResults(Ref ref) async {
 }
 
 // 장바구니 상태
-@riverpod
-class CartItems extends _$CartItems {
+final cartItemsProvider =
+    NotifierProvider<CartItemsNotifier, List<BookModel>>(
+        CartItemsNotifier.new);
+
+class CartItemsNotifier extends Notifier<List<BookModel>> {
   @override
   List<BookModel> build() => [];
 
@@ -79,8 +83,11 @@ class CartItems extends _$CartItems {
 }
 
 // 찜 목록 상태
-@riverpod
-class WishlistItems extends _$WishlistItems {
+final wishlistItemsProvider =
+    NotifierProvider<WishlistItemsNotifier, List<BookModel>>(
+        WishlistItemsNotifier.new);
+
+class WishlistItemsNotifier extends Notifier<List<BookModel>> {
   @override
   List<BookModel> build() => [];
 
@@ -95,4 +102,20 @@ class WishlistItems extends _$WishlistItems {
   bool contains(BookModel book) {
     return state.any((b) => b.isbn == book.isbn);
   }
+}
+
+// 전체 도서 캐시 (상세 페이지용)
+final bookCacheProvider =
+    NotifierProvider<BookCache, Map<String, BookModel>>(BookCache.new);
+
+class BookCache extends Notifier<Map<String, BookModel>> {
+  @override
+  Map<String, BookModel> build() => {};
+
+  void addAll(List<BookModel> books) {
+    final newEntries = {for (var b in books) b.isbn: b};
+    state = {...state, ...newEntries};
+  }
+
+  BookModel? find(String isbn) => state[isbn];
 }

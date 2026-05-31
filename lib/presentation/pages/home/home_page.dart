@@ -23,7 +23,6 @@ class HomePage extends ConsumerWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // 검색바
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -55,23 +54,17 @@ class HomePage extends ConsumerWidget {
             ),
 
             if (isSearching) ...[
-              // 검색 결과
               const _SearchResultSection(),
             ] else ...[
-              // 카테고리 필터
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: _CategorySection(),
                 ),
               ),
-
-              // 베스트셀러 섹션
               const SliverToBoxAdapter(
                 child: _BestsellerSection(),
               ),
-
-              // 카테고리별 도서
               const _CategoryBooksSection(),
             ],
 
@@ -83,7 +76,6 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-// 검색바 위젯
 class _SearchResultSection extends ConsumerWidget {
   const _SearchResultSection();
 
@@ -93,6 +85,8 @@ class _SearchResultSection extends ConsumerWidget {
 
     return results.when(
       data: (books) {
+        Future.microtask(() =>
+        ref.read(bookCacheProvider.notifier).addAll(books));
         if (books.isEmpty) {
           return SliverToBoxAdapter(
             child: Center(
@@ -144,7 +138,6 @@ class _SearchResultSection extends ConsumerWidget {
   }
 }
 
-// 카테고리 섹션
 class _CategorySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -171,7 +164,6 @@ class _CategorySection extends ConsumerWidget {
   }
 }
 
-// 베스트셀러 섹션
 class _BestsellerSection extends ConsumerWidget {
   const _BestsellerSection();
 
@@ -195,21 +187,25 @@ class _BestsellerSection extends ConsumerWidget {
           ),
         ),
         bestsellers.when(
-          data: (books) => SizedBox(
-            height: 220,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: books.length > 10 ? 10 : books.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                return _BestsellerCard(
-                  book: books[index],
-                  rank: index + 1,
-                ).animate().fadeIn(delay: (index * 60).ms).slideX(begin: 0.1);
-              },
-            ),
-          ),
+          data: (books) {
+            Future.microtask(() =>
+            ref.read(bookCacheProvider.notifier).addAll(books));
+            return SizedBox(
+              height: 220,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: books.length > 10 ? 10 : books.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  return _BestsellerCard(
+                    book: books[index],
+                    rank: index + 1,
+                  ).animate().fadeIn(delay: (index * 60).ms).slideX(begin: 0.1);
+                },
+              ),
+            );
+          },
           loading: () => const SizedBox(
             height: 220,
             child: Center(child: CircularProgressIndicator()),
@@ -221,7 +217,6 @@ class _BestsellerSection extends ConsumerWidget {
   }
 }
 
-// 베스트셀러 카드
 class _BestsellerCard extends ConsumerWidget {
   final BookModel book;
   final int rank;
@@ -266,11 +261,10 @@ class _BestsellerCard extends ConsumerWidget {
                           width: 130,
                           height: 170,
                           color: AppColors.surfaceVariant,
-                          child:
-                              const Icon(Icons.book, color: AppColors.textHint),
+                          child: const Icon(Icons.book,
+                              color: AppColors.textHint),
                         ),
                 ),
-                // 순위 뱃지
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -309,7 +303,6 @@ class _BestsellerCard extends ConsumerWidget {
   }
 }
 
-// 카테고리별 도서 섹션
 class _CategoryBooksSection extends ConsumerWidget {
   const _CategoryBooksSection();
 
@@ -337,23 +330,27 @@ class _CategoryBooksSection extends ConsumerWidget {
           ),
         ),
         books.when(
-          data: (bookList) => SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => BookCard(book: bookList[index])
-                    .animate()
-                    .fadeIn(delay: (index * 50).ms),
-                childCount: bookList.length,
+          data: (bookList) {
+            Future.microtask(() =>
+              ref.read(bookCacheProvider.notifier).addAll(bookList));
+            return SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => BookCard(book: bookList[index])
+                      .animate()
+                      .fadeIn(delay: (index * 50).ms),
+                  childCount: bookList.length,
+                ),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200,
+                  childAspectRatio: 0.6,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
               ),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                childAspectRatio: 0.6,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-            ),
-          ),
+            );
+          },
           loading: () => const SliverToBoxAdapter(
             child: Center(
               child: Padding(
