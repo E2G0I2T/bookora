@@ -9,6 +9,7 @@ import '../../presentation/pages/auth/auth_page.dart';
 import '../../presentation/pages/order/order_page.dart';
 import '../widgets/main_shell.dart';
 import '../../presentation/pages/wishlist/wishlist_page.dart';
+import '../../presentation/providers/auth_provider.dart';
 
 part 'app_router.g.dart';
 
@@ -26,9 +27,19 @@ class AppRoutes {
 
 @riverpod
 GoRouter appRouter(Ref ref) {
+  final isLoggedIn = ref.watch(isLoggedInProvider);
+
   return GoRouter(
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
+    redirect: (context, state) {
+      final authRoutes = [AppRoutes.auth];
+      final isAuthRoute = authRoutes.contains(state.matchedLocation);
+
+      if (!isLoggedIn && !isAuthRoute) return AppRoutes.auth;
+      if (isLoggedIn && isAuthRoute) return AppRoutes.home;
+      return null;
+    },
     routes: [
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
