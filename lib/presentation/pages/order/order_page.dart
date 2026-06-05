@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/book_model.dart';
 import '../../providers/book_provider.dart';
+import '../../../data/repositories/supabase_repository.dart';
 
 // 주문 모델
 class OrderModel {
@@ -31,7 +32,7 @@ class OrderListNotifier extends Notifier<List<OrderModel>> {
   @override
   List<OrderModel> build() => [];
 
-  void addOrder(List<BookModel> books, int totalPrice) {
+  void addOrder(List<BookModel> books, int totalPrice) async {
     final order = OrderModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       books: books,
@@ -39,6 +40,14 @@ class OrderListNotifier extends Notifier<List<OrderModel>> {
       orderedAt: DateTime.now(),
     );
     state = [order, ...state];
+
+    // Supabase에 저장
+    try {
+      final repo = ref.read(supabaseRepositoryProvider);
+      await repo.saveOrder(books: books, totalPrice: totalPrice);
+    } catch (e) {
+      debugPrint('주문 저장 오류: $e');
+    }
   }
 }
 

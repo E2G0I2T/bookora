@@ -2,6 +2,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/book_model.dart';
 import '../../data/repositories/book_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
+import '../../data/repositories/supabase_repository.dart';
+import '../providers/auth_provider.dart';
 
 part 'book_provider.g.dart';
 
@@ -89,13 +92,34 @@ final wishlistItemsProvider =
 
 class WishlistItemsNotifier extends Notifier<List<BookModel>> {
   @override
-  List<BookModel> build() => [];
+  List<BookModel> build() {
+    // 로그인 상태 감지해서 찜 목록 불러오기
+    ref.listen(isLoggedInProvider, (prev, next) {
+      if (next) _loadWishlists();
+      if (!next) state = [];
+    });
+    return [];
+  }
 
-  void toggle(BookModel book) {
-    if (state.any((b) => b.isbn == book.isbn)) {
+  Future<void> _loadWishlists() async {
+    try {
+      final repo = ref.read(supabaseRepositoryProvider);
+      state = await repo.fetchWishlists();
+    } catch (e) {
+      debugPrint('찜 목록 로드 오류: $e');
+    }
+  }
+
+  void toggle(BookModel book) async {
+    final isWishlisted = state.any((b) => b.isbn == book.isbn);
+    final repo = ref.read(supabaseRepositoryProvider);
+
+    if (isWishlisted) {
       state = state.where((b) => b.isbn != book.isbn).toList();
+      await repo.removeWishlist(book.isbn);
     } else {
       state = [...state, book];
+      await repo.saveWishlist(book);
     }
   }
 
