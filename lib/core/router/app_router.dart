@@ -8,6 +8,7 @@ import '../../presentation/pages/cart/cart_page.dart';
 import '../../presentation/pages/auth/auth_page.dart';
 import '../../presentation/pages/order/order_page.dart';
 import '../widgets/main_shell.dart';
+import '../../presentation/pages/wishlist/wishlist_page.dart';
 
 part 'app_router.g.dart';
 
@@ -18,6 +19,7 @@ class AppRoutes {
   static const cart = '/cart';
   static const auth = '/auth';
   static const order = '/order';
+  static const wishlist = '/wishlist';
 
   static String bookDetailPath(String id) => '/book/$id';
 }
@@ -50,6 +52,13 @@ GoRouter appRouter(Ref ref) {
             pageBuilder: (context, state) => _buildPage(
               state: state,
               child: const OrderPage(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.wishlist,
+            pageBuilder: (context, state) => _buildPage(
+              state: state,
+              child: const WishlistPage(),
             ),
           ),
         ],

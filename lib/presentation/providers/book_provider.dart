@@ -119,3 +119,19 @@ class BookCache extends Notifier<Map<String, BookModel>> {
 
   BookModel? find(String isbn) => state[isbn];
 }
+
+// ISBN으로 도서 상세 조회
+@riverpod
+Future<BookModel?> bookByIsbn(Ref ref, String isbn) async {
+  // 캐시에 있으면 캐시 사용
+  final cached = ref.watch(bookCacheProvider)[isbn];
+  if (cached != null) return cached;
+
+  // 없으면 API 호출
+  final repo = ref.watch(bookRepositoryProvider);
+  final book = await repo.fetchByIsbn(isbn);
+  if (book != null) {
+    ref.read(bookCacheProvider.notifier).addAll([book]);
+  }
+  return book;
+}

@@ -13,16 +13,36 @@ class BookDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final book = ref.watch(bookCacheProvider.select((cache) => cache[bookId]));
+    final cachedBook = ref.watch(
+      bookCacheProvider.select((cache) => cache[bookId]),
+    );
 
-    if (book == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('도서 상세')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
+    // 캐시에 있으면 바로 표시
+    if (cachedBook != null) {
+      return _BookDetailView(book: cachedBook);
     }
 
-    return _BookDetailView(book: book);
+    // 없으면 API로 조회
+    final bookAsync = ref.watch(bookByIsbnProvider(bookId));
+    return bookAsync.when(
+      data: (book) {
+        if (book == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('도서 상세')),
+            body: const Center(child: Text('책 정보를 찾을 수 없어요')),
+          );
+        }
+        return _BookDetailView(book: book);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('도서 상세')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: const Text('도서 상세')),
+        body: Center(child: Text('오류: $e')),
+      ),
+    );
   }
 }
 
@@ -335,7 +355,7 @@ class _ActionButtons extends ConsumerWidget {
                 );
               },
             icon: Icon(isInCart ? Icons.check : Icons.shopping_cart_outlined),
-            label: Text(isInCart ? '담긴 도서' : '장바구니 담기'),
+            label: Text(isInCart ? '담긴 도서' : '장바구니'),
           ),
         ),
         const SizedBox(height: 8),
@@ -361,7 +381,7 @@ class _BottomBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.divider)),
@@ -388,7 +408,7 @@ class _BottomBar extends ConsumerWidget {
                   );
                 },
               icon: Icon(isInCart ? Icons.check : Icons.shopping_cart_outlined),
-              label: Text(isInCart ? '담긴 도서' : '장바구니 담기'),
+              label: Text(isInCart ? '담긴 도서' : '장바구니'),
             ),
           ),
           const SizedBox(width: 12),

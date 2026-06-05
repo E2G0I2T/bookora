@@ -70,6 +70,23 @@ class KakaoBookDatasource {
     return searchBooks(query: category, page: page, size: size);
   }
 
+  Future<BookModel?> fetchByIsbn(String isbn) async {
+    try {
+      final response = await _dio.get(
+        '',
+        queryParameters: {
+          'query': isbn,
+          'target': 'isbn',
+        },
+      );
+      final documents = response.data['documents'] as List<dynamic>;
+      if (documents.isEmpty) return null;
+      return BookModel.fromJson(documents.first);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:

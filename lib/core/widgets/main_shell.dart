@@ -42,6 +42,11 @@ class _MobileLayout extends StatelessWidget {
             label: '홈',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_border),
+            activeIcon: Icon(Icons.favorite),
+            label: '찜',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart_outlined),
             activeIcon: Icon(Icons.shopping_cart),
             label: '장바구니',
@@ -96,6 +101,12 @@ class _WebLayout extends StatelessWidget {
             isActive: location == '/order',
             onTap: () => context.go('/order'),
           ),
+          _NavButton(
+            label: '찜',
+            icon: Icons.favorite_border,
+            isActive: location == '/wishlist',
+            onTap: () => context.go('/wishlist'),
+          ),
           const SizedBox(width: 16),
         ],
       ),
@@ -143,8 +154,9 @@ class _NavButton extends StatelessWidget {
 }
 
 int _getIndex(String location) {
-  if (location == '/cart') return 1;
-  if (location == '/order') return 2;
+  if (location == '/wishlist') return 1;
+  if (location == '/cart') return 2;
+  if (location == '/order') return 3;
   return 0;
 }
 
@@ -153,8 +165,10 @@ void _onTap(BuildContext context, int index) {
     case 0:
       context.go('/');
     case 1:
-      context.go('/cart');
+      context.go('/wishlist');
     case 2:
+      context.go('/cart');
+    case 3:
       context.go('/order');
   }
 }

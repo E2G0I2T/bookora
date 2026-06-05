@@ -10,6 +10,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import '../../../data/models/book_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
+import '../../widgets/common/skeleton_widget.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -56,18 +57,22 @@ class HomePage extends ConsumerWidget {
             if (isSearching) ...[
               const _SearchResultSection(),
             ] else ...[
+              // 베스트셀러 섹션
+              const SliverToBoxAdapter(
+                child: _BestsellerSection(),
+              ),
+
+              // 카테고리 필터
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: _CategorySection(),
                 ),
               ),
-              const SliverToBoxAdapter(
-                child: _BestsellerSection(),
-              ),
+
+              // 카테고리별 도서
               const _CategoryBooksSection(),
             ],
-
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
@@ -206,10 +211,7 @@ class _BestsellerSection extends ConsumerWidget {
               ),
             );
           },
-          loading: () => const SizedBox(
-            height: 220,
-            child: Center(child: CircularProgressIndicator()),
-          ),
+          loading: () => const BestsellerSectionSkeleton(),
           error: (e, _) => Center(child: Text('오류: $e')),
         ),
       ],
@@ -351,14 +353,7 @@ class _CategoryBooksSection extends ConsumerWidget {
               ),
             );
           },
-          loading: () => const SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(48),
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
+          loading: () => const BookGridSkeleton(),
           error: (e, _) => SliverToBoxAdapter(
             child: Center(child: Text('오류: $e')),
           ),

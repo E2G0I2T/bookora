@@ -228,3 +228,77 @@ final class SearchResultsProvider
 }
 
 String _$searchResultsHash() => r'ff358f6e1d37313eedb0a543e2573725b273905f';
+
+@ProviderFor(bookByIsbn)
+final bookByIsbnProvider = BookByIsbnFamily._();
+
+final class BookByIsbnProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<BookModel?>,
+          BookModel?,
+          FutureOr<BookModel?>
+        >
+    with $FutureModifier<BookModel?>, $FutureProvider<BookModel?> {
+  BookByIsbnProvider._({
+    required BookByIsbnFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'bookByIsbnProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$bookByIsbnHash();
+
+  @override
+  String toString() {
+    return r'bookByIsbnProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<BookModel?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<BookModel?> create(Ref ref) {
+    final argument = this.argument as String;
+    return bookByIsbn(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BookByIsbnProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$bookByIsbnHash() => r'a5eaad3c72605c6a922625a7c3578d1fddd4f4e4';
+
+final class BookByIsbnFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<BookModel?>, String> {
+  BookByIsbnFamily._()
+    : super(
+        retry: null,
+        name: r'bookByIsbnProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  BookByIsbnProvider call(String isbn) =>
+      BookByIsbnProvider._(argument: isbn, from: this);
+
+  @override
+  String toString() => r'bookByIsbnProvider';
+}

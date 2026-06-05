@@ -36,4 +36,8 @@ class BookRepository {
   Future<List<BookModel>> fetchByCategory(String category, {int page = 1}) async {
     return _datasource.fetchByCategory(category: category, page: page);
   }
+
+  Future<BookModel?> fetchByIsbn(String isbn) async {
+    return _datasource.fetchByIsbn(isbn);
+  }
 }
