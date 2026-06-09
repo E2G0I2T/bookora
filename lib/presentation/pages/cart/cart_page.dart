@@ -6,6 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../data/models/book_model.dart';
 import '../order/order_page.dart';
 import '../../providers/book_provider.dart';
+import '../mypage/mypage_page.dart';
+import '../order/order_page.dart';
 
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});
@@ -265,13 +267,75 @@ class _CartBottomBar extends ConsumerWidget {
   }
 
   void _showOrderDialog(BuildContext context, WidgetRef ref, int totalPrice) {
+    final settings = ref.read(myPageSettingsProvider);
+    final hasAddress = settings.address.isNotEmpty;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('주문 확인'),
-        content: Text(
-          '총 ${cartItems.length}권, ${_formatPrice(totalPrice)}원을\n주문하시겠어요?',
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 배송 정보
+              _OrderInfoSection(
+                icon: Icons.local_shipping_outlined,
+                title: '배송 정보',
+                content: hasAddress
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (settings.name.isNotEmpty)
+                            _OrderInfoRow(
+                                label: '받는 분',
+                                value:
+                                    '${settings.name} · ${settings.phone}'),
+                          _OrderInfoRow(
+                              label: '주소', value: settings.fullAddress),
+                          _OrderInfoRow(
+                            label: '요청사항',
+                            value: settings.actualDeliveryRequest.isNotEmpty
+                                ? settings.actualDeliveryRequest
+                                : '없음',
+                          ),
+                        ],
+                      )
+                    : const Text(
+                        '⚠️ 마이페이지에서 배송 정보를 입력해주세요',
+                        style: TextStyle(
+                            color: AppColors.warning, fontSize: 13),
+                      ),
+              ),
+              const SizedBox(height: 12),
+
+              // 결제 정보
+              _OrderInfoSection(
+                icon: Icons.payment_outlined,
+                title: '결제 수단',
+                content: _OrderInfoRow(
+                  label: '수단',
+                  value: settings.paymentMethod,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 주문 금액
+              _OrderInfoSection(
+                icon: Icons.receipt_outlined,
+                title: '주문 금액',
+                content: _OrderInfoRow(
+                  label: '총액',
+                  value:
+                      '${totalPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}원',
+                  isHighlight: true,
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -279,24 +343,30 @@ class _CartBottomBar extends ConsumerWidget {
             child: const Text('취소'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(orderListProvider.notifier).addOrder(
-                cartItems,
-                totalPrice,
-              );
-              ref.read(cartItemsProvider.notifier).clear();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('주문이 완료됐어요! 🎉'),
-                  backgroundColor: AppColors.success,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              );
-            },
+            onPressed: !hasAddress
+                ? null
+                : () {
+                    Navigator.pop(context);
+                    ref.read(orderListProvider.notifier).addOrder(
+                          books: cartItems,
+                          totalPrice: totalPrice,
+                          address: settings.fullAddress,
+                          deliveryRequest: settings.actualDeliveryRequest,
+                          paymentMethod: settings.paymentMethod,
+                          receiverName: settings.name,
+                          phone: settings.phone,
+                        );
+                    ref.read(cartItemsProvider.notifier).clear();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('주문이 완료됐어요! 🎉'),
+                        backgroundColor: AppColors.success,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
             child: const Text('주문하기'),
           ),
         ],
@@ -309,5 +379,95 @@ class _CartBottomBar extends ConsumerWidget {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (match) => '${match[1]},',
         );
+  }
+}
+
+class _OrderInfoSection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget content;
+
+  const _OrderInfoSection({
+    required this.icon,
+    required this.title,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: AppColors.primary),
+              const SizedBox(width: 6),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          content,
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderInfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isHighlight;
+
+  const _OrderInfoRow({
+    required this.label,
+    required this.value,
+    this.isHighlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight:
+                    isHighlight ? FontWeight.w700 : FontWeight.w500,
+                color:
+                    isHighlight ? AppColors.primary : AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

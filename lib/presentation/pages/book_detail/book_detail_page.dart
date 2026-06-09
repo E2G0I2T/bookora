@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/book_model.dart';
 import '../../providers/book_provider.dart';
+import '../../pages/order/order_page.dart';
+import '../mypage/mypage_page.dart';
 
 class BookDetailPage extends ConsumerWidget {
   final String bookId;
@@ -362,7 +364,7 @@ class _ActionButtons extends ConsumerWidget {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () => _showDirectOrderDialog(context, ref, book),
             child: const Text('바로 구매'),
           ),
         ),
@@ -414,7 +416,7 @@ class _BottomBar extends ConsumerWidget {
           const SizedBox(width: 12),
           Expanded(
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => _showDirectOrderDialog(context, ref, book),
               child: const Text('바로 구매'),
             ),
           ),
@@ -422,4 +424,170 @@ class _BottomBar extends ConsumerWidget {
       ),
     );
   }
+}
+
+void _showDirectOrderDialog(
+    BuildContext context, WidgetRef ref, BookModel book) {
+  final settings = ref.read(myPageSettingsProvider);
+  final hasAddress = settings.address.isNotEmpty;
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('바로 구매'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 도서 정보
+            Row(
+              children: [
+                const Icon(Icons.book_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    book.title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${book.displayPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}원',
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // 배송 정보
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.local_shipping_outlined,
+                          size: 14, color: AppColors.primary),
+                      SizedBox(width: 6),
+                      Text(
+                        '배송 정보',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (hasAddress) ...[
+                    if (settings.name.isNotEmpty)
+                      Text(
+                        '${settings.name} · ${settings.phone}',
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                    Text(
+                      settings.fullAddress,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                    if (settings.actualDeliveryRequest.isNotEmpty)
+                      Text(
+                        '요청사항: ${settings.actualDeliveryRequest}',
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textHint),
+                      ),
+                  ] else
+                    const Text(
+                      '⚠️ 마이페이지에서 배송 정보를 입력해주세요',
+                      style: TextStyle(
+                          color: AppColors.warning, fontSize: 13),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // 결제 수단
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.payment_outlined,
+                      size: 14, color: AppColors.primary),
+                  const SizedBox(width: 6),
+                  const Text(
+                    '결제 수단',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    settings.paymentMethod,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+        ElevatedButton(
+          onPressed: !hasAddress
+              ? null
+              : () {
+                  Navigator.pop(context);
+                  ref.read(orderListProvider.notifier).addOrder(
+                        books: [book],
+                        totalPrice: book.displayPrice,
+                        address: settings.fullAddress,
+                        deliveryRequest: settings.actualDeliveryRequest,
+                        paymentMethod: settings.paymentMethod,
+                        receiverName: settings.name,
+                        phone: settings.phone,
+                      );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('주문이 완료됐어요! 🎉'),
+                      backgroundColor: AppColors.success,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+          child: const Text('주문하기'),
+        ),
+      ],
+    ),
+  );
 }

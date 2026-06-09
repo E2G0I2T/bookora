@@ -13,6 +13,11 @@ class OrderModel {
   final int totalPrice;
   final DateTime orderedAt;
   final String status;
+  final String address;
+  final String deliveryRequest;
+  final String paymentMethod;
+  final String receiverName;
+  final String phone;
 
   OrderModel({
     required this.id,
@@ -20,6 +25,11 @@ class OrderModel {
     required this.totalPrice,
     required this.orderedAt,
     this.status = '배송 준비중',
+    this.address = '',
+    this.deliveryRequest = '',
+    this.paymentMethod = '',
+    this.receiverName = '',
+    this.phone = '',
   });
 }
 
@@ -32,16 +42,28 @@ class OrderListNotifier extends Notifier<List<OrderModel>> {
   @override
   List<OrderModel> build() => [];
 
-  void addOrder(List<BookModel> books, int totalPrice) async {
+  void addOrder({
+    required List<BookModel> books,
+    required int totalPrice,
+    required String address,
+    required String deliveryRequest,
+    required String paymentMethod,
+    required String receiverName,
+    required String phone,
+  }) async {
     final order = OrderModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       books: books,
       totalPrice: totalPrice,
       orderedAt: DateTime.now(),
+      address: address,
+      deliveryRequest: deliveryRequest,
+      paymentMethod: paymentMethod,
+      receiverName: receiverName,
+      phone: phone,
     );
     state = [order, ...state];
 
-    // Supabase에 저장
     try {
       final repo = ref.read(supabaseRepositoryProvider);
       await repo.saveOrder(books: books, totalPrice: totalPrice);
@@ -158,6 +180,60 @@ class _OrderCard extends StatelessWidget {
                   color: AppColors.textHint,
                 ),
           ),
+          if (order.address.isNotEmpty) ...[
+            const Divider(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.local_shipping_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (order.receiverName.isNotEmpty)
+                        Text(
+                          '${order.receiverName} · ${order.phone}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                        ),
+                      Text(
+                        order.address,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                      if (order.deliveryRequest.isNotEmpty)
+                        Text(
+                          '요청사항: ${order.deliveryRequest}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textHint,
+                              ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (order.paymentMethod.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.payment_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Text(
+                  order.paymentMethod,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+              ],
+            ),
+          ],
           const Divider(height: 20),
 
           // 주문 도서 목록

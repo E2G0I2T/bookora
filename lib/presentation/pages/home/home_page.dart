@@ -227,6 +227,10 @@ class _BestsellerCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isWishlisted = ref.watch(
+      wishlistItemsProvider.select((list) => list.any((b) => b.isbn == book.isbn)),
+    );
+
     return GestureDetector(
       onTap: () => context.push(AppRoutes.bookDetailPath(book.isbn)),
       child: SizedBox(
@@ -267,6 +271,7 @@ class _BestsellerCard extends ConsumerWidget {
                               color: AppColors.textHint),
                         ),
                 ),
+                // 순위 뱃지
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -283,6 +288,32 @@ class _BestsellerCard extends ConsumerWidget {
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
+                    ),
+                  ),
+                ),
+                // 찜 버튼
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: GestureDetector(
+                    onTap: () => ref
+                        .read(wishlistItemsProvider.notifier)
+                        .toggle(book),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isWishlisted
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        size: 16,
+                        color: isWishlisted
+                            ? Colors.red
+                            : AppColors.textSecondary,
+                      ),
                     ),
                   ),
                 ),

@@ -85,6 +85,11 @@ class _MobileLayout extends ConsumerWidget {
             activeIcon: Icon(Icons.receipt_long),
             label: '주문내역',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: '마이페이지',
+          ),
         ],
       ),
     );
@@ -136,6 +141,12 @@ class _WebLayout extends ConsumerWidget {
             icon: Icons.receipt_long_outlined,
             isActive: location == '/order',
             onTap: () => context.go('/order'),
+          ),
+          _NavButton(
+            label: '마이페이지',
+            icon: Icons.person_outline,
+            isActive: location == '/mypage',
+            onTap: () => context.go('/mypage'),
           ),
           TextButton.icon(
             onPressed: () {
@@ -205,6 +216,7 @@ int _getIndex(String location) {
   if (location == '/wishlist') return 1;
   if (location == '/cart') return 2;
   if (location == '/order') return 3;
+  if (location == '/mypage') return 4;
   return 0;
 }
 
@@ -218,5 +230,7 @@ void _onTap(BuildContext context, int index) {
       context.go('/cart');
     case 3:
       context.go('/order');
+    case 4:
+      context.go('/mypage');
   }
 }
