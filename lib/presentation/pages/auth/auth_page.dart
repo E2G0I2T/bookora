@@ -139,7 +139,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     ),
                     const SizedBox(height: 40),
 
-                    // 이메일
                     Text('이메일',
                         style: Theme.of(context).textTheme.labelLarge),
                     const SizedBox(height: 8),
@@ -159,7 +158,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     ).animate().fadeIn(delay: 200.ms),
                     const SizedBox(height: 16),
 
-                    // 비밀번호
                     Text('비밀번호',
                         style: Theme.of(context).textTheme.labelLarge),
                     const SizedBox(height: 8),
@@ -189,7 +187,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     ).animate().fadeIn(delay: 250.ms),
                     const SizedBox(height: 24),
 
-                    // 제출 버튼
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -208,7 +205,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     ).animate().fadeIn(delay: 300.ms),
                     const SizedBox(height: 16),
 
-                    // 전환 버튼
                     Center(
                       child: TextButton(
                         onPressed: () =>

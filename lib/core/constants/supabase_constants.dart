@@ -1,5 +1,4 @@
 class SupabaseConstants {
-  // ⚠️ 본인의 Supabase 프로젝트 정보로 교체해주세요
   static const supabaseUrl = 'https://ecxsyykilagksgksebdk.supabase.co';
   static const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeHN5eWtpbGFna3Nna3NlYmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MDg2NjEsImV4cCI6MjA5NjE4NDY2MX0.fHemZq5_ZIfCkdELcsAt4CYTLQQ4E0OP1rQNCpXh32w';
 }

@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary
   static const primary = Color(0xFF2C4A8C);
   static const primaryLight = Color(0xFF5472B8);
   static const primaryDark = Color(0xFF0D2460);
 
-  // Accent
   static const accent = Color(0xFFE8A838);
   static const accentLight = Color(0xFFFFCA6B);
 
-  // Background
   static const background = Color(0xFFF8F7F4);
   static const surface = Color(0xFFFFFFFF);
   static const surfaceVariant = Color(0xFFF0EDE8);
 
-  // Text
   static const textPrimary = Color(0xFF1A1A2E);
   static const textSecondary = Color(0xFF6B6B80);
   static const textHint = Color(0xFFADADB8);
 
-  // Status
   static const success = Color(0xFF4CAF50);
   static const error = Color(0xFFE53935);
   static const warning = Color(0xFFFF9800);
 
-  // Misc
   static const divider = Color(0xFFE8E8EE);
   static const shadow = Color(0x1A000000);
 }
@@ -44,7 +38,6 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.background,
 
-      // AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
@@ -59,7 +52,6 @@ class AppTheme {
         ),
       ),
 
-      // Card
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
@@ -69,7 +61,6 @@ class AppTheme {
         ),
       ),
 
-      // ElevatedButton
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -87,7 +78,6 @@ class AppTheme {
         ),
       ),
 
-      // OutlinedButton
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
@@ -103,7 +93,6 @@ class AppTheme {
         ),
       ),
 
-      // InputDecoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceVariant,
@@ -133,7 +122,6 @@ class AppTheme {
         ),
       ),
 
-      // BottomNavigationBar
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
@@ -142,7 +130,6 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
       ),
 
-      // Chip
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceVariant,
         selectedColor: AppColors.primaryLight.withOpacity(0.15),
@@ -153,14 +140,12 @@ class AppTheme {
         side: BorderSide.none,
       ),
 
-      // Divider
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
         thickness: 1,
         space: 1,
       ),
 
-      // Text
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,

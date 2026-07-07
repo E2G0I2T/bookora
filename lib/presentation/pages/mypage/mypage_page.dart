@@ -42,7 +42,7 @@ class MyPageSettings {
     String? name,
     String? phone,
     String? address,
-    String? detailAddress,         // 추가
+    String? detailAddress,
     String? deliveryRequest,
     String? deliveryRequestCustom,
     String? paymentMethod,
@@ -54,7 +54,7 @@ class MyPageSettings {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       address: address ?? this.address,
-      detailAddress: detailAddress ?? this.detailAddress,   // 추가
+      detailAddress: detailAddress ?? this.detailAddress,
       deliveryRequest: deliveryRequest ?? this.deliveryRequest,
       deliveryRequestCustom:
           deliveryRequestCustom ?? this.deliveryRequestCustom,

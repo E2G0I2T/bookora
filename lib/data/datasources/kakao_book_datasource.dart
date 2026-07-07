@@ -5,7 +5,6 @@ import '../models/book_model.dart';
 
 part 'kakao_book_datasource.g.dart';
 
-// ⚠️ 본인의 REST API 키로 교체해주세요
 const _kakaoApiKey = 'a5033cd37da82faa2d275804ade4bc6b';
 const _baseUrl = 'https://dapi.kakao.com/v3/search/book';
 
